@@ -1,0 +1,207 @@
+#include <iostream>
+using namespace std;
+
+int valueX(int x)			//the true size of the "field" is 5 by 7 but for the user interface we make him enter from 0 to 2
+{							//so we change the numbers they entered to the correct ones from the array
+	if (x > 2 || 0 > x)
+	x = 10;					//if the user enters 4 it would still work but he must enter from 0 to 2 so any other number he enters we change it to 10 which
+	else					//we can easily check for in the validation
+	{
+
+		if (x == 1)
+			x = 2;
+		else if (x == 2)
+			x = 4;
+	}
+	return x;
+}
+
+int valueY(int y)
+{
+	if (y > 2 || 0 > y)
+		y = 10;
+	else
+	{
+		if (y == 1)
+			y = 3;
+		else if (y == 2)
+			y = 6;
+	}
+	return y;
+}
+
+void print(char arr[][8])
+{
+	for (int i = 0; i < 5; i++)			//printing the game field
+	{
+		for (int j = 0; j < 7; j++)
+			cout << arr[i][j];
+		cout << endl;
+	}
+}
+
+int boxCheck(char field[][8], bool turn)	//a function that checks if a box was made, marks whose box it is and increases the score of that player
+{
+	int counter = 0;						//we use a counter so that if the player creates two boxes on one turn we can return the correct value
+	for(int i = 0; i < 3; i += 2)
+	{
+		for(int j = 0; j < 5; j += 3)
+		{ 
+			if (field[i][j + 1] == '-' && field[i + 2][j + 1] == '-' && field[i + 1][j] == '|' && field[i + 1][j + 3] == '|')
+			{	// ^ we check only for one of two horizontal becouse by the logic of the program it is impossible for the next one (filed[_][j + 2]) to be different
+				if (turn)
+				{
+					if (field[i + 1][j + 1] != 'A' && field[i + 1][j + 1] != 'B')	//cheks if the box has already been created and marked
+					{
+						field[i + 1][j + 1] = 'A';									//marks the box for player A
+						counter++;
+					}
+				}
+				else
+				{
+					if (field[i + 1][j + 1] != 'A' && field[i + 1][j + 1] != 'B')
+					{
+						field[i + 1][j + 1] = 'B';									//marks the box for player B
+						counter++;
+					}
+				}
+			}
+		}
+	}
+	return counter;
+}
+
+bool validation(int x1, int x2, int y1, int y2, char field[][8])
+{
+	if (x1 == 10 || x2 == 10 || y1 == 10 || y2 == 10)		//we check for the value of 10 which we set to every coordinate out of the field
+	{
+		cout << "Out of the field! Enter again." << endl;
+	}
+	else if (x1 != x2 && y1 != y2)
+	{
+		cout << "No diagonals! Enter again." << endl;
+	}
+	else if (x1 == x2 && y1 == y2)
+	{
+		cout << "You must choose two different dots! Enter again." << endl;
+	}
+	else if (x1 - x2 > 2 || x2 - x1 > 2 || y1 - y2 > 3 || y2 - y1 > 3)
+	{
+		cout << "You must choose two neighboring dots! Enter again." << endl;
+	}
+	else if (x1 == x2 && y2 > y1 && field[x1][y1 + 1] != ' ')
+	{
+		cout << "Already Taken! Enter again." << endl;
+	}
+	else if (x1 == x2 && y1 > y2 && field[x1][y1 - 1] != ' ')
+	{
+		cout << "Already Taken! Enter again." << endl;
+	}
+	else if (y1 == y2 && x2 > x1 && field[x1 + 1][y1] != ' ')
+	{
+		cout << "Already Taken! Enter again." << endl;
+	}
+	else if (y1 == y2 && x1 > x2 && field[x1 - 1][y1] != ' ')
+	{
+		cout << "Already Taken! Enter again." << endl;
+	}
+	else
+	{
+		return 0; //if none of the if operators are true we return 0 which will end the do {} while (val) loop
+	}
+	return 1; //if atleast one of the if operators are true we dont enter the last else so we return 1 and repeat the do {} while (val) loop
+}
+
+int main()
+{
+	bool val, turn = 1;													//val is used in the validation, and turn to know whoose player turn is it
+	int x1, y1, x2, y2, scoreA = 0, scoreB = 0, theEnd = 0, remember;	//when theEnd reaches 4 (all boxes have been created) the loop that repeats every turn of the game stops
+	char field[6][8] = { {'.',' ',' ','.',' ',' ','.'},
+						 {' ',' ',' ',' ',' ',' ',' '},
+						 {'.',' ',' ','.',' ',' ','.'},
+						 {' ',' ',' ',' ',' ',' ',' '},
+						 {'.',' ',' ','.',' ',' ','.'}, };
+
+	do
+	{
+		print(field);
+
+		if (turn)
+			cout << "\n------------------Player A------------------\n";
+		else
+			cout << "\n------------------Player B------------------\n";
+
+		//Validation
+		val = 1; //setting val to true every time before we enter the do {} while (val) loop
+		do
+		{
+			cout << "\nEnter your 1st dot coordinates: ";
+
+			cin >> x1;
+			x1 = valueX(x1);
+			cin >> y1;
+			y1 = valueY(y1);
+
+			cout << "Enter your 2nd dot coordinates: ";
+
+			cin >> x2;
+			x2 = valueX(x2);
+			cin >> y2;
+			y2 = valueY(y2);
+
+			val = validation(x1, x2, y1, y2, field);
+		} while (val);
+
+		if (x1 == x2)		//cheking if its a horizontal line 
+		{
+			if (y2 > y1)	//checks in which diraction to draw the line
+			{
+				field[x1][y1 + 1] = '-';
+				field[x1][y1 + 2] = '-';
+			}
+			else
+			{
+				field[x1][y1 - 1] = '-';
+				field[x1][y1 - 2] = '-';
+			}
+
+		}
+		else				//if its a vertical line
+		{
+			if (x2 > x1)
+				field[x1 + 1][y1] = '|';
+			else
+				field[x1 - 1][y1] = '|';
+		}
+		if (turn)		//determines whose turn is it and checks if he created a box
+		{
+			remember = scoreA;						//remember is used so that we can determine how boxes have been created this turn
+			scoreA += boxCheck(field, turn);		//if the player created a box it increases his score
+			if (remember < scoreA)
+				theEnd += (scoreA - remember);		//increases the counter that ends the game
+		}
+		else
+		{
+			remember = scoreB;
+			scoreB += boxCheck(field, turn);
+			if (remember < scoreB)
+				theEnd += (scoreB - remember);
+		}
+
+		if (turn)		//switches player turn
+			turn = 0;
+		else
+			turn = 1;
+	} while (theEnd != 4); //ones all 4 boxes have been created the game ends
+
+	print(field); //as the loop breaks the last state of the game doest print so we print it afterwards
+
+	if (scoreA > scoreB)	//chooses who is the winner
+		cout << "\n***********PLAYER A IS THE WINNER***********" << endl;
+	else if (scoreB > scoreA)
+		cout << "\n***********PLAYER B IS THE WINNER***********" << endl;
+	else
+		cout << "\n====================TIE=====================" << endl;
+
+	return 0;
+}
