@@ -175,7 +175,7 @@ int main()
 		}
 		if (turn)		//determines whose turn is it and checks if he created a box
 		{
-			remember = scoreA;						//remember is used so that we can determine how boxes have been created this turn
+			remember = scoreA;						//remember is used so that we can determine how many boxes have been created this turn
 			scoreA += boxCheck(field, turn);		//if the player created a box it increases his score
 			if (remember < scoreA)
 				theEnd += (scoreA - remember);		//increases the counter that ends the game
